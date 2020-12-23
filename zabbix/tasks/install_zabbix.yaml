@@ -1,0 +1,66 @@
+---
+- name: SELinux checking
+  shell: getenforce
+  register: status
+- name: Disabled SELinux
+  shell: setenforce 0
+  when: status.stdout == "Enforcing"
+- name: Install zabbix repo
+  yum:
+    name: https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm
+    state: present
+- name: Add postgresql-11 repo
+  yum:
+    name: https://yum.postgresql.org/11/redhat/rhel-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+- name: Install psql
+  yum:
+    name:
+      - postgresql11
+- name: Install zabbix packeges
+  yum:
+    name:
+      - zabbix-server-pgsql
+      - zabbix-agent
+      - centos-release-scl
+- name: Copy zabbix-frontend  repo file
+  template:
+    src: zabbix.repo.j2
+    dest: /etc/yum.repos.d/zabbix.repo
+- name: Install web zabbix packeges
+  yum:
+    name:
+      - zabbix-web-pgsql-scl
+      - zabbix-nginx-conf-scl
+- name: Check importing schema
+  shell: psql -U "{{ zabbix_db_user }}" -d "{{ zabbix_db_name }}" -h "{{ postgresql_host }}" -c "\dt"
+  register: output
+#- debug: msg="{{ output.stdout }}" 
+- name: Import firstable schema 
+  shell: zcat /usr/share/doc/zabbix-server-pgsql*/create.sql.gz | sudo -u zabbix psql "{{ zabbix_db_name }}" -h "{{ postgresql_host }}"
+  when: output.stderr == "Did not find any relations."
+- name: Copy zabbix_server config
+  template:
+    src: zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    backup: yes
+- name: Copy zabbix.conf for nginx
+  template:
+    src: zabbix_nginx.conf.j2
+    dest: /etc/opt/rh/rh-nginx116/nginx/conf.d/zabbix.conf
+    backup: yes
+- name: Copy zabbix.conf for php-fpm
+  template:
+    src: zabbix_php_fpm.conf.j2
+    dest: /etc/opt/rh/rh-php72/php-fpm.d/zabbix.conf
+    backup: yes
+- name: Copy nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/opt/rh/rh-nginx116/nginx/nginx.conf
+    backup: yes
+  notify:
+   - restart zabbix-server
+   - restart zabbix-agent
+   - restart rh-nginx116-nginx
+   - restart rh-php72-php-fpm

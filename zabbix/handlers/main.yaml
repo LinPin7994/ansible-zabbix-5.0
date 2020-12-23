@@ -1,0 +1,25 @@
+- name: restart postgres
+  systemd:
+    state: restarted
+    name: postgresql-11
+    enabled: yes
+- name: restart zabbix-server
+  systemd:
+    state: restarted
+    name: zabbix-server
+    enabled: yes
+- name: restart zabbix-agent
+  systemd:
+    state: restarted
+    name: zabbix-agent
+    enabled: yes
+- name: restart rh-nginx116-nginx
+  systemd:
+    state: restarted
+    name: rh-nginx116-nginx
+    enabled: yes
+- name: restart rh-php72-php-fpm
+  systemd:
+    state: restarted
+    name: rh-php72-php-fpm
+    enabled: yes

@@ -1,0 +1,5 @@
+- name: Install zabbix 5.0 
+  hosts: zabbix
+  become: yes
+  roles:
+   - zabbix
