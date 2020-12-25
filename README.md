@@ -1,4 +1,4 @@
 # ansible-zabbix-5.0
-1. clone repo
+1. Clone repo
 2. Edit group_vars file and roles/zabbix/default/main.yaml
-3. run playbook. ansible-playbokk zabbix.yaml
+3. run playbook: ansible-playbook zabbix.yaml
