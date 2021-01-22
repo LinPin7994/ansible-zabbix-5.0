@@ -1,5 +1,7 @@
 ---
 - import_tasks: install_postgres.yaml
   when: inventory_hostname == "{{ postgresql_host }}"
+  tags: postgresql
 - import_tasks: install_zabbix.yaml
   when: inventory_hostname == "{{ zabbix_host }}"
+  tags: zabbix
