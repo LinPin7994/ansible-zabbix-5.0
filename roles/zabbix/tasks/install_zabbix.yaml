@@ -37,7 +37,7 @@
   register: output
 #- debug: msg="{{ output.stdout }}" 
 - name: Import firstable schema 
-  shell: zcat /usr/share/doc/zabbix-server-pgsql*/create.sql.gz | sudo -u zabbix psql "{{ zabbix_db_name }}" -h "{{ postgresql_host }}"
+  shell: cd /tmp && zcat /usr/share/doc/zabbix-server-pgsql*/create.sql.gz | sudo -u zabbix psql -U "{{ zabbix_db_user }}" -d "{{ zabbix_db_name }}" -h "{{ postgresql_host }}"
   when: output.stderr == "Did not find any relations."
 - name: Copy zabbix_server config
   template:
